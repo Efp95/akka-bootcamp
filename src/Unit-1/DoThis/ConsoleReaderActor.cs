@@ -20,19 +20,15 @@ namespace WinTail
         protected override void OnReceive(object message)
         {
             var read = Console.ReadLine();
-            if (!string.IsNullOrEmpty(read) && String.Equals(read, ExitCommand, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(read) && string.Equals(read, ExitCommand, StringComparison.OrdinalIgnoreCase))
             {
-                // shut down the system (acquire handle to system via
-                // this actors context)
                 Context.System.Terminate();
                 return;
             }
-
-            // send input to the console writer to process and print
-            // YOU NEED TO FILL IN HERE
-
-            // continue reading messages from the console
-            // YOU NEED TO FILL IN HERE
+            
+            _consoleWriterActor.Tell(read);
+            
+            Self.Tell("continue");
         }
 
     }
