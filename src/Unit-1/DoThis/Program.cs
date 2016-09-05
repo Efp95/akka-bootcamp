@@ -1,5 +1,4 @@
-﻿using System;
-﻿using Akka.Actor;
+﻿﻿using Akka.Actor;
 
 namespace WinTail
 {
@@ -11,10 +10,16 @@ namespace WinTail
         static void Main(string[] args)
         {
             MyActorSystem = ActorSystem.Create("MyActorSystem");
-            
-            var consoleWriterActor = MyActorSystem.ActorOf(Props.Create(() => new ConsoleWriterActor()));
-            var consoleReaderActor = MyActorSystem.ActorOf(Props.Create(() => new ConsoleReaderActor(consoleWriterActor)));
-            
+
+            Props consoleWriterProps = Props.Create<ConsoleWriterActor>();
+            IActorRef consoleWriterActor = MyActorSystem.ActorOf(consoleWriterProps, "MyConsoleWriterActor");
+
+            Props validationProps = Props.Create(() => new ValidationActor(consoleWriterActor));
+            IActorRef validationActor = MyActorSystem.ActorOf(validationProps, "MyValidationActor");
+
+            Props consoleReaderProps = Props.Create<ConsoleReaderActor>(validationActor);
+            IActorRef consoleReaderActor = MyActorSystem.ActorOf(consoleReaderProps, "MyConsoleReaderActor");
+
             consoleReaderActor.Tell(ConsoleReaderActor.StartCommand);
 
             MyActorSystem.WhenTerminated.Wait();
